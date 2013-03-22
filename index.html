@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+  	*{margin: 0px; padding: 0px;}
+		body{font-family:"Trebuchet MS", Arial, Helvetica, sans-serif; font-size:12px;}
+		div{display:block;}
+		img{border:none;}
+		.page{width:100%; text-align:center;}
+		.disp-ib{display:inline-block; width:100%;}
+		.source-img-sec, .css-img-sec{width:25%; background:#ccc; float:left; border:1px solid #333;}
+		.generated-img-sec, .css-sec{width:74%; background:#ddd; float:left;}		  
+		#myCanvas {margin:20px auto; display:block; clear:both; }
+		.source-img-sec img{max-width:400px; margin:20px 0;}  
+		.drawcanvas, .createcss{display:inline-block; background:#06F; padding:5px 10px; clear:both; margin:10px auto; color:#fff; text-decoration:none;}
+    </style>
+   </head>
+<body>
+	    <div class="page">
+			<div class="disp-ib">
+				<div class="source-img-sec">
+					<h2>Source Image</h2>
+					<form id="form1">
+						<input type='file' accept="image/jpeg" onChange="readURL(this);" />						
+					</form>
+					<div class="disp-ib"><img id="source-img" src="#" alt="" border="0" /></div>
+					<a href="javascript:void(0)" title="create canvas" class="drawcanvas" >submit</a>
+					
+				</div>
+				<div class="generated-img-sec">
+					<h2>Generated same image in canvas</h2>
+					<canvas id="myCanvas"></canvas>
+					<a href="javascript:void(0)" title="create css" class="createcss" >Create Stylesheet image</a>
+				</div>				
+			</div>
+            <div class="disp-ib">
+            	<div class="css-img-sec">
+                	<h2>Generated Css Image</h2>
+                    <div class="result-div"></div>
+				</div>
+                <div class="css-sec">
+                	<h2>Generated Css for Image</h2>
+					<div class="result"></div>
+                </div>
+            </div>
+	    </div>   
+	<script src="jquery-1-7-1.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#source-img').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+	    //netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
+	$(document).ready(function(){
+		var canvas = document.getElementById('myCanvas');
+			  var ctx = canvas.getContext('2d');
+		  $('.drawcanvas').click(function(){
+			  var imageObj = new Image();
+			  imageObj.onload = function() {
+				ctx.drawImage(imageObj, 0, 0);
+			  };
+			  imageObj.src = $('#source-img').attr('src');
+			$('#myCanvas').attr('width',$('#source-img').width());
+			$('#myCanvas').attr('height',$('#source-img').height());
+		  });
+		  $('.createcss').click(function(e) { 		    
+			var imageHeight=0, imageWidth=0; 
+			var canvasOffset = $(canvas).offset();  
+			var p;			
+			var result ="";
+			$(".css-img-sec").height($(".source-img-sec").height());
+			while(imageHeight<canvas.height){
+				while(imageWidth<canvas.width){
+					p = ctx.getImageData(imageWidth, imageHeight, 1, 1).data;  				
+					var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);	
+					result += imageWidth+"px  "+imageHeight+"px "+hex+",";				
+					imageWidth++;
+				}
+				imageHeight++; imageWidth=0;
+			}
+			result += "0px 0px #ccc";
+			$(".result").text(result);
+			$(".result-div").css({						
+			'width':'1px',
+			'height':'1px'});
+			$(".result-div").css("box-shadow",result);		 	
+		});
+	  });
+	function rgbToHex(r, g, b){
+		if (r > 255 || g > 255 || b > 255)
+			throw "Invalid color component";
+		return ((r << 16) | (g << 8) | b).toString(16);
+    }
+    </script>
+  </body>
+</html>
